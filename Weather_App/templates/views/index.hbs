@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+        integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <title>Weather</title>
+</head>
+
+<body>
+    <section class="vh-100" style="background-color: #f5f6f7;">
+        <div class="container py-5 h-100">
+            <div class="input-group">
+                <input type="search" class="form-control rounded" placeholder="City" aria-label="Search" name="city"
+                    aria-describedby="search-addon" />
+                <button type="submit" class="btn btn-outline-primary searchButton">Search</button>
+            </div>
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-md-10 col-lg-8 col-xl-6">
+
+                    <div class="card bg-dark text-white">
+                        <div class=" bg-image" style="border-radius: 35px;">
+                            <img src="" class="card-img" alt="weather" />
+                            <div class="mask" style="background-color: rgba(190, 216, 232, .5);"></div>
+                        </div>
+                        <div class="card-img-overlay text-dark p-5">
+                            <h6 class="mb-0 current-date"> </h6>
+                            <h4 class="mb-0 city-name"> </h4>
+                            <p class="display-2 my-3 city-temperature"> </p>
+                            <p class="mb-2 min-max-temp"> </p>
+                            <h5 class="weather-condition"> </h5>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        var currentDateDiv = document.querySelector('.current-date');
+        const getCurrentDay = () => {
+            var weekday = new Array(7);
+            weekday[0] = "Sun";
+            weekday[1] = "Mon";
+            weekday[2] = "Tue";
+            weekday[3] = "Wed";
+            weekday[4] = "Thu";
+            weekday[5] = "Fri";
+            weekday[6] = "Sat";
+
+            let currentDay = new Date();
+            return weekday[currentDay.getDay()];
+        };
+
+        const getCurrentTime = () => {
+            var months = [
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December"
+            ]
+            var currentTime = new Date();
+            var currentMonth = months[currentTime.getMonth()];
+            var currentDate = currentTime.getDate();
+            let hours = currentTime.getHours();
+            let minutes = currentTime.getMinutes();
+            let period = "AM";
+            if (hours > 11) {
+                period = "PM";
+                if (hours > 12) {
+                    hours -= 12;
+                }
+            }
+            if (minutes < 10) {
+                minutes = "0" + minutes;
+            }
+
+            return `${currentMonth} ${currentDate} | ${hours}:${minutes} ${period}`;
+        };
+        currentDateDiv.innerHTML = `${getCurrentDay()} | ${getCurrentTime()}`;
+
+        var city;
+        let searchInput = document.querySelector('.form-control');
+        searchInput.addEventListener('keyup', (e) => {
+            city = e.target.value;
+        });
+        let searchBtn = document.querySelector('.searchButton');
+        searchBtn.addEventListener('click', async () => {
+            let url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=8a9edf21042e1768baaee3fadec99cb0`;
+            const response = await fetch(url);
+            const data = await response.json();
+            document.querySelector('.city-name').innerHTML = `${data.name},${data.sys.country}`;
+            var temp = `${data.main.temp - 273.15}`;
+            temp = `${parseInt(temp)}°C`;
+            var minTemp = `${data.main.temp_min - 273.15}°C`;
+            minTemp = `${parseInt(minTemp)}°C`;
+            var maxTemp = `${data.main.temp_max - 273.15}°C`;
+            maxTemp = `${parseInt(maxTemp)}°C`;
+            var weatherCondition = data.weather[0].main;
+            document.querySelector('.city-temperature').innerHTML = `${temp}`;
+            document.querySelector('.min-max-temp').innerHTML = `Min ${minTemp} | Max ${maxTemp} `;
+            document.querySelector('.weather-condition').innerHTML = `${weatherCondition}`;
+            if (weatherCondition == 'Rainy') {
+                document.querySelector('.card-img').src = "https://i.gifer.com/73j4.gif";
+            } else if (weatherCondition == 'Clear') {
+                document.querySelector('.card-img').src = "https://i.gifer.com/Lx0q.gif";
+            } else if (weatherCondition == 'Clouds') {
+                document.querySelector('.card-img').src = "https://i.gifer.com/LSzq.gif";
+            } else if (weatherCondition == 'Snowy') {
+                document.querySelector('.card-img').src = "https://i.gifer.com/7YWZ.gif";
+            } else if (weatherCondition == 'Haze') {
+                document.querySelector('.card-img').src = "https://i.gifer.com/WGXf.gif";
+            } else {
+                document.querySelector('.card-img').src = "https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-weather/draw1.webp";
+            }
+
+        });
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            let url = `https://api.openweathermap.org/data/2.5/weather?q=Mohali&appid=8a9edf21042e1768baaee3fadec99cb0`;
+            const response = await fetch(url);
+            const data = await response.json();
+            console.log(data);
+            document.querySelector('.city-name').innerHTML = `${data.name},${data.sys.country}`;
+            var temp = `${data.main.temp - 273.15}`;
+            temp = `${parseInt(temp)}°C`;
+            var minTemp = `${data.main.temp_min - 273.15}°C`;
+            minTemp = `${parseInt(minTemp)}°C`;
+            var maxTemp = `${data.main.temp_max - 273.15}°C`;
+            maxTemp = `${parseInt(maxTemp)}°C`;
+            var weatherCondition = data.weather[0].main;
+            document.querySelector('.city-temperature').innerHTML = `${temp}`;
+            document.querySelector('.min-max-temp').innerHTML = `Min ${minTemp} | Max ${maxTemp} `;
+            document.querySelector('.weather-condition').innerHTML = `${weatherCondition}`;
+            if (weatherCondition == 'Rainy') {
+                document.querySelector('.card-img').src = "https://i.gifer.com/73j4.gif";
+            } else if (weatherCondition == 'Clear') {
+                document.querySelector('.card-img').src = "https://i.gifer.com/Lx0q.gif";
+            } else if (weatherCondition == 'Clouds') {
+                document.querySelector('.card-img').src = "https://i.gifer.com/LSzq.gif";
+            } else if (weatherCondition == 'Snowy') {
+                document.querySelector('.card-img').src = "https://i.gifer.com/7YWZ.gif";
+            } else if (weatherCondition == 'Haze') {
+                document.querySelector('.card-img').src = "https://i.gifer.com/WGXf.gif";
+            } else {
+                document.querySelector('.card-img').src = "https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-weather/draw1.webp";
+            }
+        });
+    </script>
+</body>
+
+</html>
